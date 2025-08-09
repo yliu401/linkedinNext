@@ -1,126 +1,79 @@
-/* LinkedIn Jobs Quick Next Extension Styles */
-
 #linkedin-quick-next {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  user-select: none;
-  transition: opacity 0.2s ease;
-}
-
-#linkedin-quick-next:hover {
-  opacity: 1 !important;
-}
-
-#quick-next-btn {
-  background: #0a66c2;
-  color: white;
-  border: none;
-  border-radius: 50px;
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease;
-  min-width: 80px;
-  justify-content: center;
-  pointer-events: auto;
-}
-
-#quick-next-btn:hover:not(.disabled) {
-  background: #004182;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-}
-
-#quick-next-btn:active:not(.disabled) {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-#quick-next-btn.disabled {
-  background: #666;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-#quick-next-btn svg {
-  transition: transform 0.2s ease;
-  pointer-events: none;
-}
-
-#quick-next-btn:hover:not(.disabled) svg {
-  transform: translateX(2px);
-}
-
-/* Dragging states */
-#linkedin-quick-next[dragging="true"] {
-  opacity: 0.8;
-  cursor: grabbing !important;
-}
-
-#linkedin-quick-next[dragging="true"] #quick-next-btn {
-  cursor: grabbing !important;
-  pointer-events: none;
-}
-
-/* Visual feedback for draggable element */
-#linkedin-quick-next::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border: 2px dashed transparent;
-  border-radius: 52px;
-  transition: border-color 0.2s ease;
-  pointer-events: none;
-}
-
-#linkedin-quick-next:hover::before {
-  border-color: rgba(10, 102, 194, 0.3);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  #quick-next-btn {
-    padding: 10px 16px;
-    font-size: 13px;
-    min-width: 70px;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10000;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
   
-  /* Make touch area slightly larger on mobile */
-  #linkedin-quick-next {
-    padding: 4px;
-    margin: -4px;
+  #quick-next-btn {
+    background: #0a66c2;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+    min-width: 80px;
+    justify-content: center;
   }
-}
-
-/* Animation for when button appears */
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+  
+  #quick-next-btn:hover:not(.disabled) {
+    background: #004182;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   }
-  to {
-    opacity: 1;
+  
+  #quick-next-btn:active:not(.disabled) {
     transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
-}
-
-#linkedin-quick-next {
-  animation: slideInUp 0.3s ease;
-}
-
-/* Dragging cursor for the whole element */
-#linkedin-quick-next {
-  cursor: move;
-}
-
-/* But keep button cursor for the actual button */
-#quick-next-btn {
-  cursor: pointer !important;
-}
+  
+  #quick-next-btn.disabled {
+    background: #666;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  
+  #quick-next-btn svg {
+    transition: transform 0.2s ease;
+  }
+  
+  #quick-next-btn:hover:not(.disabled) svg {
+    transform: translateX(2px);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    #linkedin-quick-next {
+      bottom: 15px;
+      right: 15px;
+    }
+    
+    #quick-next-btn {
+      padding: 10px 16px;
+      font-size: 13px;
+    }
+  }
+  
+  /* Animation for when button appears */
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  #linkedin-quick-next {
+    animation: slideInUp 0.3s ease;
+  }
