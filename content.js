@@ -2,12 +2,17 @@ class LinkedInQuickNext {
     constructor() {
       this.nextButton = null;
       this.isInitialized = false;
+      this.template = null;
+      this.isDragging = false;
       this.init();
     }
   
     init() {
       // Add debugging
       console.log('LinkedIn Quick Next: Initializing on', window.location.href);
+      
+      // Set the template directly
+      this.template = this.getButtonTemplate();
       
       // Wait for page to load completely
       if (document.readyState === 'loading') {
@@ -20,25 +25,40 @@ class LinkedInQuickNext {
       this.observePageChanges();
     }
   
+    getButtonTemplate() {
+      return `
+        <div id="linkedin-quick-next">
+          <button id="quick-next-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8.59 16.59L13.17 12L8.59 7.41L10 6l6 6-6 6-1.41-1.41z"/>
+            </svg>
+            Next
+          </button>
+        </div>
+      `;
+    }
+  
     createQuickNextButton() {
       // Only create if we're on a jobs search page and haven't created it yet
       if (!this.isOnJobsPage() || this.isInitialized) return;
   
-      // Create the floating next button
-      this.nextButton = document.createElement('div');
-      this.nextButton.id = 'linkedin-quick-next';
-      this.nextButton.innerHTML = `
-        <button id="quick-next-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8.59 16.59L13.17 12L8.59 7.41L10 6l6 6-6 6-1.41-1.41z"/>
-          </svg>
-          Next
-        </button>
-      `;
+      // Create container and parse template
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = this.template.trim();
+      this.nextButton = tempDiv.firstChild;
   
       // Add click handler
       const button = this.nextButton.querySelector('#quick-next-btn');
-      button.addEventListener('click', () => this.goToNextPage());
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Only trigger next page if we're not dragging AND button can be clicked
+        if (!this.isDragging && button.dataset.canClick === 'true') {
+          this.goToNextPage();
+        }
+      });
+  
+      // Make the button draggable
+      this.makeDraggable(this.nextButton);
   
       // Add to page
       document.body.appendChild(this.nextButton);
@@ -48,18 +68,124 @@ class LinkedInQuickNext {
       this.updateButtonState();
     }
   
+    makeDraggable(element) {
+      let isDragging = false;
+      let dragOffset = { x: 0, y: 0 };
+      let startPos = { x: 0, y: 0 };
+      
+      // Mouse events
+      element.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return; // Only left mouse button
+        this.startDrag(e, e.clientX, e.clientY);
+      });
+  
+      // Touch events
+      element.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Prevent scrolling
+        const touch = e.touches[0];
+        this.startDrag(e, touch.clientX, touch.clientY);
+      }, { passive: false });
+  
+      // Shared drag start logic
+      this.startDrag = (e, clientX, clientY) => {
+        isDragging = true;
+        this.isDragging = false; // Will be set to true if actual dragging occurs
+        
+        const rect = element.getBoundingClientRect();
+        dragOffset.x = clientX - rect.left;
+        dragOffset.y = clientY - rect.top;
+        
+        startPos.x = clientX;
+        startPos.y = clientY;
+        
+        element.style.cursor = 'grabbing';
+        element.style.transition = 'none';
+        
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+        document.addEventListener('touchend', handleTouchEnd);
+      };
+  
+      const handleMouseMove = (e) => {
+        if (!isDragging) return;
+        this.updatePosition(e.clientX, e.clientY);
+      };
+  
+      const handleTouchMove = (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        this.updatePosition(touch.clientX, touch.clientY);
+      };
+  
+      this.updatePosition = (clientX, clientY) => {
+        // Check if we've moved enough to consider this a drag
+        const deltaX = Math.abs(clientX - startPos.x);
+        const deltaY = Math.abs(clientY - startPos.y);
+        
+        if (deltaX > 5 || deltaY > 5) {
+          this.isDragging = true;
+        }
+        
+        if (this.isDragging) {
+          const newX = clientX - dragOffset.x;
+          const newY = clientY - dragOffset.y;
+          
+          // Keep button within viewport bounds
+          const maxX = window.innerWidth - element.offsetWidth;
+          const maxY = window.innerHeight - element.offsetHeight;
+          
+          const clampedX = Math.max(0, Math.min(newX, maxX));
+          const clampedY = Math.max(0, Math.min(newY, maxY));
+          
+          element.style.left = clampedX + 'px';
+          element.style.top = clampedY + 'px';
+          element.style.right = 'auto';
+          element.style.bottom = 'auto';
+        }
+      };
+  
+      const handleMouseUp = () => {
+        this.endDrag();
+      };
+  
+      const handleTouchEnd = () => {
+        this.endDrag();
+      };
+  
+      this.endDrag = () => {
+        isDragging = false;
+        element.style.cursor = 'grab';
+        element.style.transition = 'all 0.2s ease';
+        
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+        
+        // Reset isDragging after a short delay to allow click handler to check it
+        setTimeout(() => {
+          this.isDragging = false;
+        }, 10);
+      };
+  
+      // Set initial cursor
+      element.style.cursor = 'grab';
+    }
+  
     goToNextPage() {
       console.log('LinkedIn Quick Next: Attempting to go to next page');
       
-      // Prevent the button from being disabled during the click
+      // Check if button is already processing to prevent double clicks
       const ourButton = document.querySelector('#quick-next-btn');
+      if (ourButton && ourButton.dataset.processing === 'true') {
+        return;
+      }
+      
+      // Mark as processing
       if (ourButton) {
-        ourButton.style.pointerEvents = 'none'; // Temporarily disable to prevent double clicks
-        setTimeout(() => {
-          if (ourButton) {
-            ourButton.style.pointerEvents = 'auto';
-          }
-        }, 2000);
+        ourButton.dataset.processing = 'true';
       }
       
       // Target the specific LinkedIn next button class
@@ -100,9 +226,6 @@ class LinkedInQuickNext {
         console.log('Button element:', nextButton);
         
         try {
-          // Don't focus to avoid page jumps
-          // nextButton.focus();
-          
           // Create and dispatch a click event that mimics user interaction
           const clickEvent = new MouseEvent('click', {
             view: window,
@@ -122,31 +245,30 @@ class LinkedInQuickNext {
           nextButton.click();
           
           console.log('LinkedIn Quick Next: Click attempted');
-        //   this.showMessage('Going to next page...');
           
-          // Update button state after a longer delay to allow LinkedIn to process
+          // Update button state immediately
           setTimeout(() => {
             if (this.nextButton) {
               this.updateButtonState();
             }
-          }, 3000);
+          }, 500);
           
         } catch (error) {
           console.error('LinkedIn Quick Next: Error clicking next button:', error);
           this.showMessage('Error clicking next button');
-          
-          // Re-enable our button if there was an error
+        } finally {
+          // Always reset processing state
           if (ourButton) {
-            ourButton.style.pointerEvents = 'auto';
+            ourButton.dataset.processing = 'false';
           }
         }
       } else {
         console.log('LinkedIn Quick Next: No next button found');
         this.showMessage('No next page available');
         
-        // Re-enable our button
+        // Reset processing state
         if (ourButton) {
-          ourButton.style.pointerEvents = 'auto';
+          ourButton.dataset.processing = 'false';
         }
         
         // Debug: Show all pagination-related buttons
@@ -168,15 +290,25 @@ class LinkedInQuickNext {
   
       const button = this.nextButton.querySelector('#quick-next-btn');
       
+      // Skip update if button is currently processing
+      if (button.dataset.processing === 'true') {
+        return;
+      }
+      
       // Check if next page is available
       const hasNext = this.hasNextPage();
       
       if (hasNext) {
         button.disabled = false;
         button.classList.remove('disabled');
+        button.setAttribute('title', 'Go to next page');
+        button.dataset.canClick = 'true';
       } else {
-        button.disabled = true;
+        // Don't actually disable the button - just mark it as non-clickable
+        button.disabled = false; // Keep it enabled so it can receive events
         button.classList.add('disabled');
+        button.setAttribute('title', 'No next page available (still draggable)');
+        button.dataset.canClick = 'false';
       }
     }
   
@@ -214,7 +346,7 @@ class LinkedInQuickNext {
     }
   
     showMessage(text) {
-      // Create temporary message
+      // Create temporary message using DOM methods instead of innerHTML
       const message = document.createElement('div');
       message.className = 'quick-next-message';
       message.textContent = text;
@@ -279,7 +411,7 @@ class LinkedInQuickNext {
           clearTimeout(this.updateTimeout);
           this.updateTimeout = setTimeout(() => {
             this.updateButtonState();
-          }, 500);
+          }, 200); // Reduced from 500ms to 200ms
         }
       }).observe(document, { subtree: true, childList: true });
     }

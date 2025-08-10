@@ -2,30 +2,29 @@
     "manifest_version": 2,
     "name": "LinkedIn Jobs Quick Next",
     "version": "1.0",
-    "description": "Adds a convenient stationary Next button for LinkedIn job browsing",
+    "description": "Adds a floating Next button to LinkedIn job search pages for quick navigation",
     
     "permissions": [
       "activeTab",
-      "*://www.linkedin.com/*"
+      "*://linkedin.com/*",
+      "*://*.linkedin.com/*"
     ],
     
-    "content_scripts": [
-      {
-        "matches": ["*://www.linkedin.com/jobs/*"],
-        "js": ["content.js"],
-        "css": ["styles.css"],
-        "run_at": "document_end"
-      }
-    ],
+    "content_scripts": [{
+      "matches": ["*://linkedin.com/jobs/*", "*://*.linkedin.com/jobs/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }],
     
     "browser_action": {
-      "default_title": "LinkedIn Jobs Quick Next",
-      "default_popup": "popup.html"
+      "default_popup": "popup.html",
+      "default_title": "LinkedIn Jobs Quick Next"
     },
     
     "icons": {
-      "16": "icon16.png",
-      "48": "icon48.png",
-      "128": "icon128.png"
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
     }
   }
