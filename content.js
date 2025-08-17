@@ -4,6 +4,7 @@ class LinkedInQuickNext {
       this.isInitialized = false;
       this.template = null;
       this.isDragging = false;
+      this.savedPosition = null;
       this.init();
     }
   
@@ -14,15 +15,91 @@ class LinkedInQuickNext {
       // Set the template directly
       this.template = this.getButtonTemplate();
       
-      // Wait for page to load completely
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => this.createQuickNextButton());
-      } else {
-        setTimeout(() => this.createQuickNextButton(), 1000); // Add delay for dynamic content
-      }
+      // Load saved position first
+      this.loadSavedPosition().then(() => {
+        // Wait for page to load completely
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', () => this.createQuickNextButton());
+        } else {
+          setTimeout(() => this.createQuickNextButton(), 1000); // Add delay for dynamic content
+        }
+      });
   
       // Handle dynamic content changes (LinkedIn uses SPA routing)
       this.observePageChanges();
+    }
+
+    async loadSavedPosition() {
+      try {
+        // Try chrome.storage first, fallback to browser.storage
+        const storage = (typeof chrome !== 'undefined' && chrome.storage) ? chrome.storage : 
+                       (typeof browser !== 'undefined' && browser.storage) ? browser.storage : null;
+        
+        if (storage && storage.local) {
+          const result = await new Promise((resolve) => {
+            storage.local.get(['quickNextPosition'], (result) => {
+              resolve(result);
+            });
+          });
+          
+          if (result.quickNextPosition) {
+            this.savedPosition = result.quickNextPosition;
+            console.log('LinkedIn Quick Next: Loaded saved position:', this.savedPosition);
+          } else {
+            console.log('LinkedIn Quick Next: No saved position found, using default');
+            this.savedPosition = { bottom: '20px', right: '20px' };
+          }
+        } else {
+          console.log('LinkedIn Quick Next: Storage API not available, using default position');
+          this.savedPosition = { bottom: '20px', right: '20px' };
+        }
+      } catch (error) {
+        console.error('LinkedIn Quick Next: Error loading saved position:', error);
+        this.savedPosition = { bottom: '20px', right: '20px' };
+      }
+    }
+
+    async savePosition(position) {
+      try {
+        // Try chrome.storage first, fallback to browser.storage
+        const storage = (typeof chrome !== 'undefined' && chrome.storage) ? chrome.storage : 
+                       (typeof browser !== 'undefined' && browser.storage) ? browser.storage : null;
+        
+        if (storage && storage.local) {
+          await new Promise((resolve) => {
+            storage.local.set({ quickNextPosition: position }, () => {
+              console.log('LinkedIn Quick Next: Position saved:', position);
+              resolve();
+            });
+          });
+          this.savedPosition = position;
+        } else {
+          console.log('LinkedIn Quick Next: Storage API not available, cannot save position');
+        }
+      } catch (error) {
+        console.error('LinkedIn Quick Next: Error saving position:', error);
+      }
+    }
+
+    applyPosition(element) {
+      if (!this.savedPosition) return;
+      
+      // Apply the saved position
+      if (this.savedPosition.left !== undefined && this.savedPosition.top !== undefined) {
+        // Position was set using left/top (dragged position)
+        element.style.left = this.savedPosition.left;
+        element.style.top = this.savedPosition.top;
+        element.style.right = 'auto';
+        element.style.bottom = 'auto';
+      } else {
+        // Use default bottom/right positioning
+        element.style.bottom = this.savedPosition.bottom || '20px';
+        element.style.right = this.savedPosition.right || '20px';
+        element.style.left = 'auto';
+        element.style.top = 'auto';
+      }
+      
+      console.log('LinkedIn Quick Next: Applied position:', this.savedPosition);
     }
   
     getButtonTemplate() {
@@ -46,6 +123,9 @@ class LinkedInQuickNext {
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = this.template.trim();
       this.nextButton = tempDiv.firstChild;
+
+      // Apply saved position before adding to DOM
+      this.applyPosition(this.nextButton);
   
       // Add click handler
       const button = this.nextButton.querySelector('#quick-next-btn');
@@ -163,6 +243,16 @@ class LinkedInQuickNext {
         document.removeEventListener('mouseup', handleMouseUp);
         document.removeEventListener('touchmove', handleTouchMove);
         document.removeEventListener('touchend', handleTouchEnd);
+        
+        // Save position if it was actually dragged
+        if (this.isDragging) {
+          const rect = element.getBoundingClientRect();
+          const position = {
+            left: element.style.left,
+            top: element.style.top
+          };
+          this.savePosition(position);
+        }
         
         // Reset isDragging after a short delay to allow click handler to check it
         setTimeout(() => {
@@ -287,7 +377,7 @@ class LinkedInQuickNext {
   
     updateButtonState() {
       if (!this.nextButton) return;
-  
+
       const button = this.nextButton.querySelector('#quick-next-btn');
       
       // Skip update if button is currently processing
