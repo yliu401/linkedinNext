@@ -118,6 +118,15 @@ class LinkedInQuickNext {
     createQuickNextButton() {
       // Only create if we're on a jobs search page and haven't created it yet
       if (!this.isOnJobsPage() || this.isInitialized) return;
+
+      // Check if button already exists in DOM (from previous injection)
+      const existingButton = document.getElementById('linkedin-quick-next');
+      if (existingButton) {
+        console.log('LinkedIn Quick Next: Button already exists, skipping creation');
+        this.nextButton = existingButton;
+        this.isInitialized = true;
+        return;
+      }
   
       // Create container and parse template
       const tempDiv = document.createElement('div');
@@ -507,5 +516,36 @@ class LinkedInQuickNext {
     }
   }
   
-  // Initialize the extension
-  new LinkedInQuickNext();
+  // Global function to force create/recreate the button immediately
+  window.createLinkedInQuickNextButton = function() {
+    console.log('createLinkedInQuickNextButton called');
+
+    // Remove existing button if any
+    const existing = document.getElementById('linkedin-quick-next');
+    if (existing) {
+      console.log('Removing existing button');
+      existing.remove();
+    }
+
+    // If we have an existing instance, reset it and create button
+    if (window.linkedInQuickNextInstance) {
+      const inst = window.linkedInQuickNextInstance;
+      inst.isInitialized = false;
+      inst.nextButton = null;
+      inst.loadSavedPosition().then(() => {
+        console.log('Position loaded, creating button');
+        inst.createQuickNextButton();
+      });
+    } else {
+      // Create new instance (it will auto-create button via init)
+      window.linkedInQuickNextInstance = new LinkedInQuickNext();
+    }
+  };
+
+  // Initialize the extension only on first load
+  if (!window.linkedInQuickNextInstance) {
+    console.log('First load - creating LinkedInQuickNext instance');
+    window.linkedInQuickNextInstance = new LinkedInQuickNext();
+  } else {
+    console.log('Instance already exists');
+  }

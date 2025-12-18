@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        .quick-next-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            z-index: 10001;
+            font-size: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .quick-next-message.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Template for temporary messages -->
+    <div id="message-template" class="quick-next-message" style="display: none;">
+        <span class="message-text"></span>
+    </div>
+</body>
+</html>

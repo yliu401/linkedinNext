@@ -4,47 +4,26 @@
     <meta charset="utf-8">
     <style>
         body {
-            width: 250px;
+            width: 200px;
             padding: 15px;
             margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             font-size: 14px;
         }
-        
+
         .header {
             text-align: center;
             margin-bottom: 15px;
         }
-        
+
         .title {
             font-weight: 600;
             color: #0a66c2;
-            margin-bottom: 5px;
         }
-        
-        .status {
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        
-        .status.active {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .status.inactive {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f1b0b7;
-        }
-        
+
         button {
             width: 100%;
-            padding: 8px 12px;
-            margin-bottom: 8px;
+            padding: 10px 12px;
             border: 1px solid #0a66c2;
             background: #0a66c2;
             color: white;
@@ -52,31 +31,17 @@
             cursor: pointer;
             font-size: 13px;
         }
-        
+
         button:hover {
             background: #004182;
         }
-        
-        button:disabled {
-            background: #ccc;
-            border-color: #ccc;
-            cursor: not-allowed;
-        }
-        
-        .secondary {
-            background: white;
-            color: #0a66c2;
-        }
-        
-        .secondary:hover {
-            background: #f3f6f8;
-        }
-        
+
         .info {
-            font-size: 12px;
+            font-size: 11px;
             color: #666;
-            margin-top: 10px;
+            margin-top: 12px;
             line-height: 1.4;
+            text-align: center;
         }
     </style>
 </head>
@@ -84,19 +49,13 @@
     <div class="header">
         <div class="title">LinkedIn Jobs Quick Next</div>
     </div>
-    
-    <div id="status" class="status inactive">
-        Checking page...
-    </div>
-    
-    <button id="toggleButton" disabled>Show Quick Next Button</button>
-    <button id="nextButton" class="secondary" disabled>Go to Next Page</button>
-    <button id="refreshButton" class="secondary">Refresh Extension</button>
-    
+
+    <button id="toggleButton">Hide Button</button>
+
     <div class="info">
-        This extension works on LinkedIn job search pages. The floating Next button should appear automatically.
+        The floating Next button is draggable.
     </div>
-    
+
     <script src="popup.js"></script>
 </body>
 </html>
