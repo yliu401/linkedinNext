@@ -10,7 +10,7 @@ class LinkedInQuickNext {
   
     init() {
       // Add debugging
-      console.log('LinkedIn Quick Next: Initializing on', window.location.href);
+      // console.log('LinkedIn Quick Next: Initializing on', window.location.href);
       
       // Set the template directly
       this.template = this.getButtonTemplate();
@@ -44,17 +44,17 @@ class LinkedInQuickNext {
           
           if (result.quickNextPosition) {
             this.savedPosition = result.quickNextPosition;
-            console.log('LinkedIn Quick Next: Loaded saved position:', this.savedPosition);
+            // console.log('LinkedIn Quick Next: Loaded saved position:', this.savedPosition);
           } else {
-            console.log('LinkedIn Quick Next: No saved position found, using default');
+            // console.log('LinkedIn Quick Next: No saved position found, using default');
             this.savedPosition = { bottom: '20px', right: '20px' };
           }
         } else {
-          console.log('LinkedIn Quick Next: Storage API not available, using default position');
+          // console.log('LinkedIn Quick Next: Storage API not available, using default position');
           this.savedPosition = { bottom: '20px', right: '20px' };
         }
       } catch (error) {
-        console.error('LinkedIn Quick Next: Error loading saved position:', error);
+        // console.error('LinkedIn Quick Next: Error loading saved position:', error);
         this.savedPosition = { bottom: '20px', right: '20px' };
       }
     }
@@ -68,16 +68,16 @@ class LinkedInQuickNext {
         if (storage && storage.local) {
           await new Promise((resolve) => {
             storage.local.set({ quickNextPosition: position }, () => {
-              console.log('LinkedIn Quick Next: Position saved:', position);
+              // console.log('LinkedIn Quick Next: Position saved:', position);
               resolve();
             });
           });
           this.savedPosition = position;
         } else {
-          console.log('LinkedIn Quick Next: Storage API not available, cannot save position');
+          // console.log('LinkedIn Quick Next: Storage API not available, cannot save position');
         }
       } catch (error) {
-        console.error('LinkedIn Quick Next: Error saving position:', error);
+        // console.error('LinkedIn Quick Next: Error saving position:', error);
       }
     }
 
@@ -99,7 +99,7 @@ class LinkedInQuickNext {
         element.style.top = 'auto';
       }
       
-      console.log('LinkedIn Quick Next: Applied position:', this.savedPosition);
+      // console.log('LinkedIn Quick Next: Applied position:', this.savedPosition);
     }
   
     getButtonTemplate() {
@@ -122,7 +122,7 @@ class LinkedInQuickNext {
       // Check if button already exists in DOM (from previous injection)
       const existingButton = document.getElementById('linkedin-quick-next');
       if (existingButton) {
-        console.log('LinkedIn Quick Next: Button already exists, skipping creation');
+        // console.log('LinkedIn Quick Next: Button already exists, skipping creation');
         this.nextButton = existingButton;
         this.isInitialized = true;
         return;
@@ -274,7 +274,7 @@ class LinkedInQuickNext {
     }
   
     goToNextPage() {
-      console.log('LinkedIn Quick Next: Attempting to go to next page');
+      // console.log('LinkedIn Quick Next: Attempting to go to next page');
       
       // Check if button is already processing to prevent double clicks
       const ourButton = document.querySelector('#quick-next-btn');
@@ -311,18 +311,18 @@ class LinkedInQuickNext {
           nextButton = document.querySelector(selector);
           if (nextButton && !nextButton.disabled && !nextButton.hasAttribute('disabled')) {
             foundSelector = selector;
-            console.log('LinkedIn Quick Next: Found next button with selector:', selector);
+            // console.log('LinkedIn Quick Next: Found next button with selector:', selector);
             break;
           }
         } catch (e) {
-          console.log('LinkedIn Quick Next: Error with selector:', selector, e);
+          // console.log('LinkedIn Quick Next: Error with selector:', selector, e);
           continue;
         }
       }
   
       if (nextButton) {
-        console.log('LinkedIn Quick Next: Next button found, attempting to click');
-        console.log('Button element:', nextButton);
+        // console.log('LinkedIn Quick Next: Next button found, attempting to click');
+        // console.log('Button element:', nextButton);
         
         try {
           // Create and dispatch a click event that mimics user interaction
@@ -338,12 +338,12 @@ class LinkedInQuickNext {
           
           // Dispatch the event first, then call click() as backup
           const dispatched = nextButton.dispatchEvent(clickEvent);
-          console.log('LinkedIn Quick Next: Event dispatched:', dispatched);
-          
+          // console.log('LinkedIn Quick Next: Event dispatched:', dispatched);
+
           // Also try direct click
           nextButton.click();
-          
-          console.log('LinkedIn Quick Next: Click attempted');
+
+          // console.log('LinkedIn Quick Next: Click attempted');
           
           // Update button state immediately
           setTimeout(() => {
@@ -353,7 +353,7 @@ class LinkedInQuickNext {
           }, 500);
           
         } catch (error) {
-          console.error('LinkedIn Quick Next: Error clicking next button:', error);
+          // console.error('LinkedIn Quick Next: Error clicking next button:', error);
           this.showMessage('Error clicking next button');
         } finally {
           // Always reset processing state
@@ -362,7 +362,7 @@ class LinkedInQuickNext {
           }
         }
       } else {
-        console.log('LinkedIn Quick Next: No next button found');
+        // console.log('LinkedIn Quick Next: No next button found');
         this.showMessage('No next page available');
         
         // Reset processing state
@@ -371,16 +371,16 @@ class LinkedInQuickNext {
         }
         
         // Debug: Show all pagination-related buttons
-        const allPaginationButtons = document.querySelectorAll('[class*="pagination"], button[aria-label*="Next"], button[aria-label*="next"]');
-        console.log('LinkedIn Quick Next: All pagination buttons found:', 
-          Array.from(allPaginationButtons).map(btn => ({
-            element: btn,
-            classes: btn.className,
-            text: btn.textContent?.trim(),
-            ariaLabel: btn.getAttribute('aria-label'),
-            disabled: btn.disabled
-          }))
-        );
+        // const allPaginationButtons = document.querySelectorAll('[class*="pagination"], button[aria-label*="Next"], button[aria-label*="next"]');
+        // console.log('LinkedIn Quick Next: All pagination buttons found:',
+        //   Array.from(allPaginationButtons).map(btn => ({
+        //     element: btn,
+        //     classes: btn.className,
+        //     text: btn.textContent?.trim(),
+        //     ariaLabel: btn.getAttribute('aria-label'),
+        //     disabled: btn.disabled
+        //   }))
+        // );
       }
     }
   
@@ -412,7 +412,7 @@ class LinkedInQuickNext {
     }
   
     hasNextPage() {
-      console.log('LinkedIn Quick Next: Checking if next page is available');
+      // console.log('LinkedIn Quick Next: Checking if next page is available');
       
       // Check for the specific LinkedIn next button class you provided
       const nextButtonSelectors = [
@@ -425,7 +425,7 @@ class LinkedInQuickNext {
         try {
           const nextBtn = document.querySelector(selector);
           if (nextBtn && !nextBtn.disabled && !nextBtn.hasAttribute('disabled')) {
-            console.log('LinkedIn Quick Next: Next page available via selector:', selector);
+            // console.log('LinkedIn Quick Next: Next page available via selector:', selector);
             return true;
           }
         } catch (e) {
@@ -433,14 +433,14 @@ class LinkedInQuickNext {
         }
       }
   
-      console.log('LinkedIn Quick Next: No next page available');
+      // console.log('LinkedIn Quick Next: No next page available');
       return false;
     }
-  
+
     isOnJobsPage() {
-      const result = window.location.href.includes('/jobs/') || 
+      const result = window.location.href.includes('/jobs/') ||
              window.location.pathname.startsWith('/jobs/');
-      console.log('LinkedIn Quick Next: Is jobs page check:', result, window.location.href);
+      // console.log('LinkedIn Quick Next: Is jobs page check:', result, window.location.href);
       return result;
     }
   
@@ -475,7 +475,7 @@ class LinkedInQuickNext {
         const url = location.href;
         if (url !== lastUrl) {
           lastUrl = url;
-          console.log('LinkedIn Quick Next: URL changed to:', url);
+          // console.log('LinkedIn Quick Next: URL changed to:', url);
           
           // Clear any pending timeout
           if (urlChangeTimeout) {
@@ -487,16 +487,16 @@ class LinkedInQuickNext {
             if (this.isOnJobsPage()) {
               // Don't remove existing button, just update its state
               if (this.isInitialized && this.nextButton) {
-                console.log('LinkedIn Quick Next: Updating existing button state after navigation');
+                // console.log('LinkedIn Quick Next: Updating existing button state after navigation');
                 this.updateButtonState();
               } else {
                 // Only create if button doesn't exist
-                console.log('LinkedIn Quick Next: Creating button after navigation');
+                // console.log('LinkedIn Quick Next: Creating button after navigation');
                 this.createQuickNextButton();
               }
             } else if (!this.isOnJobsPage() && this.nextButton) {
               // Only remove if we're not on a jobs page
-              console.log('LinkedIn Quick Next: Removing button - not on jobs page');
+              // console.log('LinkedIn Quick Next: Removing button - not on jobs page');
               this.nextButton.remove();
               this.nextButton = null;
               this.isInitialized = false;
@@ -518,12 +518,12 @@ class LinkedInQuickNext {
   
   // Global function to force create/recreate the button immediately
   window.createLinkedInQuickNextButton = function() {
-    console.log('createLinkedInQuickNextButton called');
+    // console.log('createLinkedInQuickNextButton called');
 
     // Remove existing button if any
     const existing = document.getElementById('linkedin-quick-next');
     if (existing) {
-      console.log('Removing existing button');
+      // console.log('Removing existing button');
       existing.remove();
     }
 
@@ -533,7 +533,7 @@ class LinkedInQuickNext {
       inst.isInitialized = false;
       inst.nextButton = null;
       inst.loadSavedPosition().then(() => {
-        console.log('Position loaded, creating button');
+        // console.log('Position loaded, creating button');
         inst.createQuickNextButton();
       });
     } else {
@@ -544,8 +544,8 @@ class LinkedInQuickNext {
 
   // Initialize the extension only on first load
   if (!window.linkedInQuickNextInstance) {
-    console.log('First load - creating LinkedInQuickNext instance');
+    // console.log('First load - creating LinkedInQuickNext instance');
     window.linkedInQuickNextInstance = new LinkedInQuickNext();
   } else {
-    console.log('Instance already exists');
+    // console.log('Instance already exists');
   }
